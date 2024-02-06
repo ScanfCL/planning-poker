@@ -1,74 +1,40 @@
-import Peer from "peerjs";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import "./App.css";
+import reactLogo from "./assets/react.svg";
+import viteLogo from "/vite.svg";
 
-import { initializeApp } from "firebase/app";
-import { getDatabase, onValue, ref, set } from "firebase/database";
-import { firebaseConfig } from "./firebase";
+// import { initializeApp } from "firebase/app";
+// import { getDatabase } from "firebase/database";
+// import { firebaseConfig } from "./firebase";
 
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
+// const app = initializeApp(firebaseConfig);
+// const database = getDatabase(app);
 
 function App() {
   const [count, setCount] = useState(0);
-  const [peerId, setPeerId] = useState("");
-  const peerRef = useRef<Peer | null>(null);
-  const [remotePeerId, setRemotePeerId] = useState("");
-
-  useEffect(() => {
-    // Initialize Peer
-    const peer = new Peer("", {
-      // Your PeerJS config here
-    });
-    peerRef.current = peer;
-
-    peer.on("open", (id) => {
-      setPeerId(id);
-      // Register this peer in the database
-      const peersRef = ref(database, "peers/" + id);
-      set(peersRef, { id });
-    });
-
-    // Listen for remote connections
-    peer.on("connection", (conn) => {
-      conn.on("data", (data) => {
-        console.log("Received:", data);
-      });
-    });
-
-    // Listen for remote IDs
-    const peersRef = ref(database, "peers/");
-    onValue(peersRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const [remoteId] = Object.keys(data).filter((key) => key !== peerId);
-        setRemotePeerId(remoteId);
-      }
-    });
-
-    return () => {
-      peer.destroy();
-    };
-  }, []);
-
-  const connectToPeer = () => {
-    const conn = peerRef?.current?.connect(remotePeerId);
-    console.log("conn", conn);
-    if (!conn) return;
-
-    conn.on("open", () => {
-      console.log("hello");
-      conn.send("Hello!");
-    });
-  };
 
   return (
     <>
       <div>
-        <h1>Peer-to-Peer Communication</h1>
-        <p>Your ID: {peerId}</p>
-        <button onClick={connectToPeer}>Connect to Peer</button>
+        <a href="https://vitejs.dev" target="_blank">
+          <img src={viteLogo} className="logo" alt="Vite logo" />
+        </a>
+        <a href="https://react.dev" target="_blank">
+          <img src={reactLogo} className="logo react" alt="React logo" />
+        </a>
       </div>
+      <h1>Vite + React</h1>
+      <div className="card">
+        <button onClick={() => setCount((count) => count + 1)}>
+          count is {count}
+        </button>
+        <p>
+          Edit <code>src/App.tsx</code> and save to test HMR
+        </p>
+      </div>
+      <p className="read-the-docs">
+        Click on the Vite and React logos to learn more
+      </p>
     </>
   );
 }
